@@ -11,7 +11,9 @@ class FontSizes {
 }
 
 class DefaultColors {
+  static const Color white = Color(0xFFFFFFFF);
   static const Color pink = Color(0xFFEA2B83);
+  static const Color lightpink = Color(0xFFFCDDEC);
   static const Color purple = Color(0xFF8E8FF8);
   static const Color orange = Color(0xFFF18F3B);
   static const Color lightteal = Color(0xFF58D5D4);

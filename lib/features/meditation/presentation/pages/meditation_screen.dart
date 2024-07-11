@@ -10,7 +10,7 @@ class MeditationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: DefaultColors.white,
         elevation: 0,
         leading: Image.asset('assets/menu_burger.png'),
         actions: [
@@ -20,7 +20,7 @@ class MeditationScreen extends StatelessWidget {
           SizedBox(width: 16,)
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: DefaultColors.white,
       body: Container(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(

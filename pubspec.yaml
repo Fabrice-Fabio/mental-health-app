@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: 6.1.0
   flutter_bloc: ^8.1.6
+  audio_video_progress_bar: ^1.0.1
 
 dev_dependencies:
   flutter_test:
