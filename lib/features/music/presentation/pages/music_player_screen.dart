@@ -11,7 +11,12 @@ class MusicPlayerScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Image.asset('assets/down_arrow.png'),
+        leading: GestureDetector(
+          child: Image.asset('assets/down_arrow.png'),
+          onTap: (){
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
           Image.asset('assets/transcript_icon.png'),
           const SizedBox(width: 16,)
