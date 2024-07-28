@@ -1,9 +1,64 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mental_health/core/theme.dart';
+import 'package:mental_health/features/music/domain/entities/song.dart';
 
-class MusicPlayerScreen extends StatelessWidget {
-  const MusicPlayerScreen({Key? key}) : super(key: key);
+class MusicPlayerScreen extends StatefulWidget {
+  final Song song;
+  MusicPlayerScreen({Key? key, required this.song}) : super(key: key);
+
+  @override
+  State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
+}
+
+class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
+  late AudioPlayer _audioPlayer;
+  bool isLooping = false;
+
+  @override
+  void initState() {
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.setUrl(widget.song.songLink);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void togglePlayPause() {
+    if(_audioPlayer.playing){
+      _audioPlayer.pause();
+    }else{
+      _audioPlayer.play();
+    }
+  }
+
+  void seekBackward(){
+    final currentPosition = _audioPlayer.position;
+    final newPosition = currentPosition - Duration(seconds: 10);
+    _audioPlayer.seek(newPosition >= Duration.zero ? newPosition : Duration.zero);
+  }
+
+  void seekForward(){
+    final currentPosition = _audioPlayer.position;
+    final newPosition = currentPosition + Duration(seconds: 10);
+    _audioPlayer.seek(newPosition);
+  }
+
+  void seekRestart(){
+    _audioPlayer.seek(Duration.zero);
+  }
+
+  void toggleLoop(){
+    setState(() {
+      isLooping = !isLooping;
+      _audioPlayer.setLoopMode(isLooping ? LoopMode.one : LoopMode.off);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,17 +93,24 @@ class MusicPlayerScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16,),
-            Text('Rain On Glass', style: Theme.of(context).textTheme.labelLarge,),
-            Text('By : Painting with Passion', style: Theme.of(context).textTheme.labelSmall,),
+            Text(widget.song.title, style: Theme.of(context).textTheme.labelLarge,),
+            Text('By : ${widget.song.author}', style: Theme.of(context).textTheme.labelSmall,),
             const Spacer(),
-            ProgressBar(
-              progress: Duration(milliseconds: 1000),
-              total: Duration(milliseconds: 5000),
-              baseBarColor: DefaultColors.lightpink,
-              thumbColor: DefaultColors.pink,
-              progressBarColor: DefaultColors.pink,
-              onSeek: (duration) {
-                print('User selected a new time : $duration');
+            StreamBuilder<Duration>(
+              stream: _audioPlayer.positionStream,
+              builder: (context, snapshot){
+                final position = snapshot.data ?? Duration.zero;
+                final total = _audioPlayer.duration ?? Duration.zero;
+                return ProgressBar(
+                    progress: position,
+                    total: total,
+                    baseBarColor: DefaultColors.lightpink,
+                    thumbColor: DefaultColors.pink,
+                    progressBarColor: DefaultColors.pink,
+                    onSeek: (duration) {
+                      _audioPlayer.seek(duration);
+                    },
+                  );
               },
             ),
             Row(
@@ -59,21 +121,52 @@ class MusicPlayerScreen extends StatelessWidget {
                   icon: Icon(Icons.shuffle, color: DefaultColors.pink,)
                 ),
                 IconButton(
-                  onPressed: (){},
+                  onPressed: seekBackward,
                   icon: Icon(Icons.skip_previous, color: DefaultColors.pink,)
                 ),
-                IconButton(
-                  iconSize: 80,
-                  onPressed: (){},
-                  icon: Icon(Icons.pause_circle_filled, color: DefaultColors.pink,)
+                StreamBuilder(
+                    stream: _audioPlayer.playerStateStream,
+                    builder: (context, snapshot){
+                      final playerState = snapshot.data;
+                      final processingState = playerState?.processingState ?? ProcessingState.idle;
+                      final playing = playerState?.playing ?? false;
+
+                      if(processingState == ProcessingState.loading || processingState == ProcessingState.buffering){
+                        return Container(
+                          margin: EdgeInsets.all(8),
+                          width: 50,
+                          height: 50,
+                          child: CircularProgressIndicator(color: DefaultColors.pink,),
+                        );
+                      }
+                      else if(!playing){
+                        return IconButton(
+                            iconSize: 80,
+                            onPressed: togglePlayPause,
+                            icon: Icon(Icons.play_circle_filled, color: DefaultColors.pink,)
+                        );
+                      }else if(processingState != ProcessingState.completed){
+                        return IconButton(
+                            iconSize: 80,
+                            onPressed: togglePlayPause,
+                            icon: Icon(Icons.pause_circle_filled, color: DefaultColors.pink,)
+                        );
+                      } else {
+                        return IconButton(
+                            iconSize: 80,
+                            onPressed: seekRestart,
+                            icon: Icon(Icons.replay_circle_filled, color: DefaultColors.pink,)
+                        );
+                      }
+                    }
                 ),
                 IconButton(
-                  onPressed: (){},
+                  onPressed: seekForward,
                   icon: Icon(Icons.skip_next, color: DefaultColors.pink,)
                 ),
                 IconButton(
-                  onPressed: (){},
-                  icon: Icon(Icons.repeat, color: DefaultColors.pink,)
+                  onPressed: toggleLoop,
+                  icon: Icon(isLooping ? Icons.repeat_one : Icons.repeat, color: DefaultColors.pink,)
                 )
               ],
             )
