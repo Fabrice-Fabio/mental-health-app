@@ -38,14 +38,14 @@ class TaskCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 3),
-                    Container(
-                      padding: EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(50)
-                      ),
-                      child: Icon(Icons.arrow_forward_ios),
-                    )
+                    // Container(
+                    //   padding: EdgeInsets.all(3),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.grey[200],
+                    //     borderRadius: BorderRadius.circular(50)
+                    //   ),
+                    //   child: Icon(Icons.arrow_forward_ios),
+                    // )
                   ],
                 )
               ],
