@@ -16,8 +16,12 @@ import 'package:mental_health/features/music/presentation/bloc/song_event.dart';
 import 'package:mental_health/presentation/bottomNavBar/bloc/navigation_bloc.dart';
 import 'package:mental_health/presentation/homePage/home_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:mental_health/presentation/onboarding/onboarding.dart';
+import 'injection_container.dart' as di;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await di.init();
   runApp(const MyApp());
 }
 
@@ -32,44 +36,20 @@ class MyApp extends StatelessWidget {
             create: (_) => NavigationBloc(),
           ),
           BlocProvider(
-              create: (context) => SongBloc(
-                getAllSongs: GetAllSongs(
-                  repository: SongRepositoryImpl(
-                    remoteDataSource: SongRemoteDataSourceImpl(
-                      client: http.Client()
-                    )
-                  )
-                )
-              )..add(FetchSongs())
+              create: (context) => di.sl<SongBloc>()..add(FetchSongs())
           ),
           BlocProvider(
-            create: (context)=>DailyQuoteBloc(
-                getDailyQuote: GetDailyQuote(
-                  repository: MeditationRepositoryImpl(
-                    remoteDataSource: MeditationRemoteDataSourceImpl(
-                        client: http.Client()
-                    )
-                  )
-                )
-            )..add(FetchDailyQuote()),
+            create: (context)=> di.sl<DailyQuoteBloc>()..add(FetchDailyQuote()),
           ),
           BlocProvider(
-              create: (context)=>MoodMessageBloc(
-                  getMoodMessage: GetMoodMessage(
-                    repository: MeditationRepositoryImpl(
-                      remoteDataSource: MeditationRemoteDataSourceImpl(
-                        client: http.Client()
-                      )
-                    )
-                  )
-              )
+              create: (context)=> di.sl<MoodMessageBloc>()
           )
         ],
         child: MaterialApp(
           title: 'Flutter Demo',
           theme: AppTheme.lightTheme,
           debugShowCheckedModeBanner: false,
-          home: HomeScreen(),
+          home: OnboardingScreen(),
         )
     );
   }
